@@ -1,0 +1,37 @@
+name: Docker Image CI
+
+on:
+
+  workflow_dispatch:
+  
+  push:
+    branches: [ "main" ]
+    paths:
+    - 'sum/**'
+  
+  pull_request:
+    branches: [ "main" ]
+    paths: 
+    - 'sum/**'
+    
+jobs:
+  
+  build:
+    
+    runs-on: ubuntu-latest
+    
+    steps:
+    
+    - uses: actions/checkout@v3
+
+    - name: Login into ECR2
+      run: echo ${{ secrets.ECR_CREDS }} | docker login public.ecr.aws/z8c2k6d0 --username AWS --password-stdin
+
+    - name: Generate Build ID
+      run: echo "ID=$(date +%s)" >> $GITHUB_ENV
+    
+    - name: Build the Docker image
+      run: docker build ./sum --tag public.ecr.aws/z8c2k6d0/sum:0.1.0-image-$ID
+    
+    - name: Push the Docker image
+      run: docker push public.ecr.aws/z8c2k6d0/sum:0.1.0-image-$ID
