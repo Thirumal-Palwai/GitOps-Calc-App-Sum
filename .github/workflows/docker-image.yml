@@ -24,8 +24,11 @@ jobs:
     
     - uses: actions/checkout@v3
 
-    - name: Login into ECR2
-      run: echo ${{ secrets.ECR_CREDS }} | docker login public.ecr.aws/z8c2k6d0 --username AWS --password-stdin
+    - name: Login into AWS
+      run:  aws configure set aws_access_key_id "AKIAZSHWKCDQZCNP4M6G" && aws configure set aws_secret_access_key ${{ secrets.AWS_KEY }} && aws configure set region "us-east-1" && aws configure set output "None"
+
+    - name: Login into ECR
+      run: aws ecr-public get-login-password --region us-east-1 | docker login public.ecr.aws/z8c2k6d0 --username AWS --password-stdin
 
     - name: Generate Build ID
       run: echo "ID=$(date +%s)" >> $GITHUB_ENV
